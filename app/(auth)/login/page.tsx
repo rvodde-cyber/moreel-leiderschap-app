@@ -15,7 +15,7 @@ export default function LoginPage({
   const profielMelding = searchParams?.melding === "profiel";
   const linkMelding = searchParams?.melding === "link";
   const supabaseConfig = getSupabaseConfig();
-  const configuratieMelding = searchParams?.melding === "configuratie";
+  const configuratieMelding = searchParams?.melding === "configuratie" && !supabaseConfig;
 
   return (
     <main className="flex min-h-screen items-center justify-center px-5 py-12">
