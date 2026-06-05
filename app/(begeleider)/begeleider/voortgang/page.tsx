@@ -1,6 +1,6 @@
 import { Card, CardHeader } from "@/components/card";
 import { getAppContext, requireRole } from "@/lib/app-data";
-import { DIMENSIE_BY_KEY, MOREEL_MODEL, type DimensieKey } from "@/lib/model";
+import { DIMENSIE_BY_KEY, MOREEL_MODEL, isDimensieKey, type DimensieKey } from "@/lib/model";
 import { createClient } from "@/lib/supabase/server";
 
 export default async function BegeleiderVoortgangPage() {
@@ -66,6 +66,8 @@ export default async function BegeleiderVoortgangPage() {
             </p>
           ) : (
             dagboekAandacht.map((item) => {
+              if (!isDimensieKey(item.dimensie)) return null;
+
               const dimensie = DIMENSIE_BY_KEY[item.dimensie];
 
               return (

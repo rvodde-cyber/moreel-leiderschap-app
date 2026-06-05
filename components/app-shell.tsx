@@ -32,6 +32,12 @@ export function AppShell({
 
   return (
     <div className="min-h-screen">
+      <a
+        href="#main-content"
+        className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-50 focus:border focus:border-line focus:bg-white focus:px-4 focus:py-2 focus:text-sm focus:font-semibold focus:text-ink"
+      >
+        Ga naar inhoud
+      </a>
       <header className="border-b border-line bg-canvas/88 backdrop-blur">
         <div className="mx-auto flex max-w-7xl flex-col gap-5 px-5 py-5 md:flex-row md:items-center md:justify-between md:px-8">
           <Link href={profile.rol === "begeleider" ? "/begeleider/dashboard" : "/traject"} className="group flex items-center gap-3">
@@ -46,12 +52,12 @@ export function AppShell({
             </span>
           </Link>
 
-          <nav className="flex flex-wrap items-center gap-2">
+          <nav className="flex flex-wrap items-center gap-2" aria-label="Hoofdnavigatie">
             {links.map((link) => (
               <Link
                 key={link.href}
                 href={link.href}
-                className="border border-transparent px-3 py-2 text-sm text-muted transition hover:border-line hover:bg-white/70 hover:text-ink"
+                className="inline-flex min-h-11 items-center border border-transparent px-3 py-2.5 text-sm text-muted transition hover:border-line hover:bg-white/70 hover:text-ink"
               >
                 {link.label}
               </Link>
@@ -66,7 +72,10 @@ export function AppShell({
         </div>
       </header>
 
-      <main className={cn("mx-auto max-w-7xl px-5 py-8 md:px-8 md:py-12", className)}>
+      <main
+        id="main-content"
+        className={cn("mx-auto max-w-7xl px-5 py-8 md:px-8 md:py-12", className)}
+      >
         {children}
       </main>
 

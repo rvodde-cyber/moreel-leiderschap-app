@@ -19,7 +19,7 @@ export function Input({
   return (
     <input
       className={cn(
-        "w-full border border-line bg-white/80 px-4 py-3 text-ink placeholder:text-muted/70 transition focus:border-accent",
+        "w-full border border-line bg-white/80 px-4 py-3 text-ink placeholder:text-muted/70 transition focus:border-accent focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent",
         className
       )}
       {...props}
@@ -34,7 +34,7 @@ export function Textarea({
   return (
     <textarea
       className={cn(
-        "min-h-44 w-full resize-y border border-line bg-white/80 px-4 py-3 text-ink placeholder:text-muted/70 transition focus:border-accent",
+        "min-h-44 w-full resize-y border border-line bg-white/80 px-4 py-3 text-ink placeholder:text-muted/70 transition focus:border-accent focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent",
         className
       )}
       {...props}

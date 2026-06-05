@@ -15,8 +15,15 @@ const body = Source_Serif_4({
 });
 
 export const metadata: Metadata = {
-  title: "Moreel Vakmanschap",
-  description: "Een rustige leeromgeving voor moreel leiderschap in de praktijk."
+  title: {
+    default: "Moreel Vakmanschap",
+    template: "%s · Moreel Vakmanschap"
+  },
+  description: "Een rustige leeromgeving voor moreel leiderschap in de praktijk.",
+  robots: {
+    index: false,
+    follow: false
+  }
 };
 
 export default function RootLayout({

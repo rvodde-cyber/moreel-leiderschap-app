@@ -50,23 +50,30 @@ export default async function GroepPage() {
             title="Anoniem delen"
             description="Plaats een situatie of observatie voor je cohort. Er wordt geen auteur opgeslagen."
           />
-          <form action={createGroepsruimtePost} className="space-y-5">
-            <input type="hidden" name="week" value={huidigeWeek} />
-            <div className="space-y-3">
-              <Label>Dimensie</Label>
-              <DimensieGrid value="waarnemen" />
-            </div>
-            <Textarea
-              name="tekst"
-              placeholder="Beschrijf de situatie zo concreet als nodig, zonder namen als dat niet hoeft."
-              required
-            />
-            <p className="border border-[#C45E3E]/25 bg-[#C45E3E]/5 p-4 text-sm text-[#8a3e29]">
-              Dit bericht is anoniem zichtbaar voor alle deelnemers en de begeleider. Jouw naam
-              wordt nooit getoond.
+          {profile.cohort_id ? (
+            <form action={createGroepsruimtePost} className="space-y-5">
+              <input type="hidden" name="week" value={huidigeWeek} />
+              <div className="space-y-3">
+                <Label>Dimensie</Label>
+                <DimensieGrid value="waarnemen" />
+              </div>
+              <Textarea
+                name="tekst"
+                placeholder="Beschrijf de situatie zo concreet als nodig, zonder namen als dat niet hoeft."
+                required
+              />
+              <p className="border border-[#C45E3E]/25 bg-[#C45E3E]/5 p-4 text-sm text-[#8a3e29]">
+                Dit bericht is anoniem zichtbaar voor alle deelnemers en de begeleider. Jouw naam
+                wordt nooit getoond.
+              </p>
+              <Button type="submit">Anoniem plaatsen</Button>
+            </form>
+          ) : (
+            <p className="border border-line bg-white/60 p-4 text-muted">
+              Je profiel is nog niet aan een cohort gekoppeld. Vraag je begeleider om je toe te
+              voegen voordat je anoniem kunt delen.
             </p>
-            <Button type="submit">Anoniem plaatsen</Button>
-          </form>
+          )}
         </Card>
       </div>
 

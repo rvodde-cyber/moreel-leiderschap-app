@@ -41,19 +41,21 @@ export default async function RemindersPage() {
                   <p className="font-semibold text-ink">{reminder.moment}</p>
                   <p className="mt-1 text-muted">“{reminder.bericht}”</p>
                 </div>
-                <label className="flex items-center gap-3 text-sm font-semibold text-muted">
-                  <input
-                    type="checkbox"
-                    name="actief"
-                    defaultChecked={actief}
-                    className="h-5 w-5 accent-[#534AB7]"
-                  />
-                  Aan
+                <div className="flex items-center gap-3">
+                  <label className="flex items-center gap-3 text-sm font-semibold text-muted">
+                    <input
+                      type="checkbox"
+                      name="actief"
+                      defaultChecked={actief}
+                      className="h-5 w-5 accent-[#534AB7]"
+                    />
+                    Aan
+                  </label>
                   <Button type="submit" variant="secondary" size="sm">
                     <Bell size={15} />
                     Opslaan
                   </Button>
-                </label>
+                </div>
               </form>
             );
           })}

@@ -35,52 +35,64 @@ export default async function ZelfscanPage() {
 
         {!zichtbaar ? (
           <p className="mb-6 border border-line bg-white/60 p-4 text-muted">
-            De zelfscan verschijnt vanzelf in week 1 en week 6. Je kunt hem hier alvast bekijken
-            als voorbereiding.
+            De zelfscan is bedoeld voor week 1, week 6 en week 18. Je kunt hem hier alvast
+            bekijken als voorbereiding.
           </p>
         ) : null}
 
         <form action={saveZelfscan} className="space-y-7">
           <input type="hidden" name="moment" value={moment} />
-          {MOREEL_MODEL.map((dimensie) => {
-            const waarde = huidigeScan?.[dimensie.key] ?? 3;
-            const ankers = ZELFSCAN_ANKERS[dimensie.key];
+          <fieldset disabled={!zichtbaar} className="space-y-7 disabled:opacity-70">
+            {MOREEL_MODEL.map((dimensie) => {
+              const waarde = huidigeScan?.[dimensie.key] ?? 3;
+              const ankers = ZELFSCAN_ANKERS[dimensie.key];
+              const inputId = `zelfscan-${dimensie.key}`;
+              const anchorsId = `${inputId}-ankers`;
 
-            return (
-              <div key={dimensie.key} className="border border-line bg-white/65 p-5">
-                <div className="mb-4 flex items-start gap-3">
-                  <span className="text-2xl" aria-hidden>
-                    {dimensie.icoon}
-                  </span>
-                  <div>
-                    <h3 className="font-display text-2xl" style={{ color: dimensie.kleur }}>
-                      {dimensie.naam}
-                    </h3>
-                    <p className="text-sm text-muted">{dimensie.kernvraag}</p>
+              return (
+                <div key={dimensie.key} className="border border-line bg-white/65 p-5">
+                  <div className="mb-4 flex items-start gap-3">
+                    <span className="text-2xl" aria-hidden>
+                      {dimensie.icoon}
+                    </span>
+                    <div>
+                      <label
+                        htmlFor={inputId}
+                        className="block font-display text-2xl"
+                        style={{ color: dimensie.kleur }}
+                      >
+                        {dimensie.naam}
+                      </label>
+                      <p className="text-sm text-muted">{dimensie.kernvraag}</p>
+                    </div>
+                  </div>
+                  <input
+                    id={inputId}
+                    type="range"
+                    name={dimensie.key}
+                    min="1"
+                    max="5"
+                    defaultValue={waarde}
+                    aria-describedby={anchorsId}
+                    className="w-full accent-[#534AB7]"
+                  />
+                  <div id={anchorsId} className="mt-3 grid grid-cols-2 gap-4 text-sm text-muted">
+                    <span>1: {ankers.laag}</span>
+                    <span className="text-right">5: {ankers.hoog}</span>
                   </div>
                 </div>
-                <input
-                  type="range"
-                  name={dimensie.key}
-                  min="1"
-                  max="5"
-                  defaultValue={waarde}
-                  className="w-full accent-[#534AB7]"
-                />
-                <div className="mt-3 grid grid-cols-2 gap-4 text-sm text-muted">
-                  <span>1: {ankers.laag}</span>
-                  <span className="text-right">5: {ankers.hoog}</span>
-                </div>
-              </div>
-            );
-          })}
+              );
+            })}
 
-          <Textarea
-            name="toelichting"
-            defaultValue={huidigeScan?.toelichting ?? ""}
-            placeholder="Optioneel: wat wil je onthouden bij deze scan?"
-          />
-          <Button type="submit">Zelfscan opslaan</Button>
+            <Textarea
+              name="toelichting"
+              defaultValue={huidigeScan?.toelichting ?? ""}
+              placeholder="Optioneel: wat wil je onthouden bij deze scan?"
+            />
+            <Button type="submit" disabled={!zichtbaar}>
+              Zelfscan opslaan
+            </Button>
+          </fieldset>
         </form>
       </Card>
 

@@ -5,7 +5,7 @@ import type { Database, ReminderKey } from "@/lib/supabase/types";
 
 export async function POST(request: NextRequest) {
   const secret = process.env.REMINDERS_CRON_SECRET;
-  if (secret && request.headers.get("authorization") !== `Bearer ${secret}`) {
+  if (!secret || request.headers.get("authorization") !== `Bearer ${secret}`) {
     return NextResponse.json({ error: "Niet geautoriseerd" }, { status: 401 });
   }
 
