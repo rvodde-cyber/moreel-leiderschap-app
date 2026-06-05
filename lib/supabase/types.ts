@@ -194,7 +194,15 @@ export type Database = {
         Relationships: [];
       };
     };
-    Functions: Record<string, never>;
+    Functions: {
+      bootstrap_first_begeleider: {
+        Args: {
+          p_cohort_naam: string;
+          p_begeleider_naam: string | null;
+        };
+        Returns: string;
+      };
+    };
     Enums: Record<string, never>;
     CompositeTypes: Record<string, never>;
   };
