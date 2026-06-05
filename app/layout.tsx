@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Playfair_Display, Source_Serif_4 } from "next/font/google";
+import { APP_NAME } from "@/lib/brand";
 import "./globals.css";
 
 const display = Playfair_Display({
@@ -16,8 +17,8 @@ const body = Source_Serif_4({
 
 export const metadata: Metadata = {
   title: {
-    default: "Moreel Vakmanschap",
-    template: "%s · Moreel Vakmanschap"
+    default: APP_NAME,
+    template: `%s · ${APP_NAME}`
   },
   description: "Een rustige leeromgeving voor moreel leiderschap in de praktijk.",
   robots: {

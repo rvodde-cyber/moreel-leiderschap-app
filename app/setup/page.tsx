@@ -4,6 +4,7 @@ import { createClient as createSupabaseAdminClient } from "@supabase/supabase-js
 import { Button, buttonVariants } from "@/components/button";
 import { Card, CardHeader } from "@/components/card";
 import { Input, Label } from "@/components/field";
+import { APP_NAME, APP_SERIES, INSTITUTION_FOOTER } from "@/lib/brand";
 import { getSupabaseConfig } from "@/lib/supabase/config";
 import { createClient } from "@/lib/supabase/server";
 import type { Database } from "@/lib/supabase/types";
@@ -186,11 +187,13 @@ export default async function SetupPage({
           <CardHeader
             eyebrow="Eerste setup"
             title="Log eerst in"
-            description="Gebruik je magic link en open daarna opnieuw /setup om de eerste begeleider en het eerste cohort aan te maken."
+            description={`Gebruik je magic link en open daarna opnieuw /setup om ${APP_NAME} klaar te zetten.`}
           />
+          <p className="-mt-4 mb-6 text-xs uppercase tracking-[0.18em] text-accent">{APP_SERIES}</p>
           <Link href="/login" className={buttonVariants({ variant: "primary" })}>
             Naar login
           </Link>
+          <p className="mt-8 border-t border-line pt-4 text-sm text-muted">{INSTITUTION_FOOTER}</p>
         </Card>
       </main>
     );
@@ -217,8 +220,9 @@ export default async function SetupPage({
         <CardHeader
           eyebrow="Eerste setup"
           title="Maak jezelf begeleider"
-          description="Deze tijdelijke setup werkt alleen zolang er nog geen andere profielen bestaan. Daarna wordt de route automatisch geblokkeerd door de database."
+          description={`Deze tijdelijke setup werkt alleen zolang er nog geen andere profielen bestaan. Daarna wordt ${APP_NAME} automatisch geblokkeerd voor setup.`}
         />
+        <p className="-mt-4 mb-6 text-xs uppercase tracking-[0.18em] text-accent">{APP_SERIES}</p>
         {searchParams?.melding ? (
           <p className="mb-5 border border-[#C45E3E]/30 bg-[#C45E3E]/5 p-4 text-sm text-[#8a3e29]">
             Setup mislukt: {searchParams.melding}
@@ -240,7 +244,7 @@ export default async function SetupPage({
               id="cohort_naam"
               name="cohort_naam"
               defaultValue="Eerste cohort"
-              placeholder="Bijvoorbeeld: Moreel Vakmanschap 2026"
+              placeholder="Bijvoorbeeld: Moreel Leiderschap 2026"
               required
             />
           </div>
@@ -248,6 +252,7 @@ export default async function SetupPage({
             Maak begeleider en cohort aan
           </Button>
         </form>
+        <p className="mt-8 border-t border-line pt-4 text-sm text-muted">{INSTITUTION_FOOTER}</p>
       </Card>
     </main>
   );

@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { BookOpen, HeartHandshake, LayoutDashboard, LogOut } from "lucide-react";
 import { signOut } from "@/lib/auth-actions";
+import { APP_NAME, APP_SERIES, INSTITUTION_FOOTER } from "@/lib/brand";
 import type { Profile } from "@/lib/supabase/types";
 import { Button } from "@/components/button";
 import { cn } from "@/lib/utils";
@@ -45,8 +46,11 @@ export function AppShell({
               {profile.rol === "begeleider" ? <LayoutDashboard size={20} /> : <HeartHandshake size={20} />}
             </span>
             <span>
-              <span className="block font-display text-2xl leading-none">Moreel Vakmanschap</span>
-              <span className="text-sm text-muted">
+              <span className="block font-display text-2xl leading-none">{APP_NAME}</span>
+              <span className="block text-xs uppercase tracking-[0.18em] text-accent">
+                {APP_SERIES}
+              </span>
+              <span className="block text-sm text-muted">
                 {profile.naam ?? "Welkom"} · {profile.rol}
               </span>
             </span>
@@ -81,7 +85,7 @@ export function AppShell({
 
       <footer className="mx-auto flex max-w-7xl items-center gap-2 px-5 pb-8 text-sm text-muted md:px-8">
         <BookOpen size={16} />
-        Rust, reflectie en morele moed — zonder scores of ranglijsten.
+        {INSTITUTION_FOOTER}
       </footer>
     </div>
   );
