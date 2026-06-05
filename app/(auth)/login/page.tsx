@@ -1,6 +1,8 @@
 import { Card, CardHeader } from "@/components/card";
 import { LoginForm } from "@/app/(auth)/login/login-form";
-import { isSupabaseConfigured } from "@/lib/supabase/config";
+import { getSupabaseConfig } from "@/lib/supabase/config";
+
+export const dynamic = "force-dynamic";
 
 export default function LoginPage({
   searchParams
@@ -8,7 +10,8 @@ export default function LoginPage({
   searchParams?: { melding?: string };
 }) {
   const profielMelding = searchParams?.melding === "profiel";
-  const supabaseConfigured = isSupabaseConfigured();
+  const supabaseConfig = getSupabaseConfig();
+  const supabaseConfigured = Boolean(supabaseConfig);
   const configuratieMelding = searchParams?.melding === "configuratie" || !supabaseConfigured;
 
   return (
@@ -31,7 +34,7 @@ export default function LoginPage({
             Controleer de Vercel omgevingsvariabelen en probeer het daarna opnieuw.
           </p>
         ) : null}
-        <LoginForm supabaseConfigured={supabaseConfigured} />
+        <LoginForm supabaseConfig={supabaseConfig} />
       </Card>
     </main>
   );

@@ -5,15 +5,17 @@ import { Mail } from "lucide-react";
 import { Button } from "@/components/button";
 import { Input, Label } from "@/components/field";
 import { createClient } from "@/lib/supabase/browser";
+import type { SupabaseConfig } from "@/lib/supabase/config";
 
 type LoginFormProps = {
-  supabaseConfigured: boolean;
+  supabaseConfig: SupabaseConfig | null;
 };
 
-export function LoginForm({ supabaseConfigured }: LoginFormProps) {
+export function LoginForm({ supabaseConfig }: LoginFormProps) {
   const [email, setEmail] = useState("");
   const [melding, setMelding] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
+  const supabaseConfigured = Boolean(supabaseConfig);
 
   function onSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -25,10 +27,10 @@ export function LoginForm({ supabaseConfigured }: LoginFormProps) {
     }
 
     startTransition(async () => {
-      const supabase = createClient();
+      const supabase = createClient(supabaseConfig);
       const origin = window.location.origin;
       const { error } = await supabase.auth.signInWithOtp({
-        email,
+        email: email.trim(),
         options: {
           emailRedirectTo: `${origin}/auth/callback`
         }
@@ -51,7 +53,7 @@ export function LoginForm({ supabaseConfigured }: LoginFormProps) {
           type="email"
           inputMode="email"
           autoComplete="email"
-          placeholder="naam@universiteit.nl"
+          placeholder="jouw@emailadres.nl"
           value={email}
           onChange={(event) => setEmail(event.target.value)}
           required
