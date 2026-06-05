@@ -1,65 +1,53 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
 :root {
-  color: #111827;
-  background: #f8fafc;
-  font-family:
-    Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
-    sans-serif;
+  color-scheme: light;
+  --background: #fafaf8;
+  --foreground: #1a1a18;
 }
 
 * {
   box-sizing: border-box;
 }
 
-html,
-body {
-  min-height: 100%;
-  margin: 0;
+html {
+  scroll-behavior: smooth;
 }
 
 body {
-  background:
-    radial-gradient(circle at top left, rgba(59, 130, 246, 0.12), transparent 32rem),
-    #f8fafc;
-}
-
-.page-shell {
-  display: grid;
   min-height: 100vh;
-  place-items: center;
-  padding: 2rem;
+  background:
+    radial-gradient(circle at top left, rgba(83, 74, 183, 0.08), transparent 34rem),
+    #fafaf8;
+  color: var(--foreground);
+  text-rendering: optimizeLegibility;
 }
 
-.hero-card {
-  width: min(100%, 44rem);
-  padding: clamp(2rem, 6vw, 4rem);
-  border: 1px solid rgba(148, 163, 184, 0.24);
-  border-radius: 2rem;
-  background: rgba(255, 255, 255, 0.82);
-  box-shadow: 0 24px 80px rgba(15, 23, 42, 0.1);
-  text-align: center;
+body::before {
+  pointer-events: none;
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  background-image: radial-gradient(circle at 1px 1px, rgba(26, 26, 24, 0.08) 1px, transparent 0);
+  background-size: 18px 18px;
+  opacity: 0.18;
 }
 
-.eyebrow {
-  margin: 0 0 1rem;
-  color: #2563eb;
-  font-size: 0.78rem;
-  font-weight: 700;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
+::selection {
+  background: rgba(83, 74, 183, 0.18);
 }
 
-h1 {
-  margin: 0;
-  color: #0f172a;
-  font-size: clamp(2.4rem, 7vw, 4.5rem);
-  letter-spacing: -0.06em;
-  line-height: 0.95;
+textarea,
+input,
+button,
+select {
+  font: inherit;
 }
 
-.intro {
-  margin: 1.5rem auto 0;
-  max-width: 34rem;
-  color: #475569;
-  font-size: clamp(1rem, 2vw, 1.15rem);
-  line-height: 1.7;
+:focus-visible {
+  outline: 2px solid #534ab7;
+  outline-offset: 3px;
 }
