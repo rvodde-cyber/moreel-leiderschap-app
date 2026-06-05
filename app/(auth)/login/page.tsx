@@ -1,5 +1,6 @@
 import { Card, CardHeader } from "@/components/card";
 import { LoginForm } from "@/app/(auth)/login/login-form";
+import { isSupabaseConfigured } from "@/lib/supabase/config";
 
 export default function LoginPage({
   searchParams
@@ -7,6 +8,8 @@ export default function LoginPage({
   searchParams?: { melding?: string };
 }) {
   const profielMelding = searchParams?.melding === "profiel";
+  const supabaseConfigured = isSupabaseConfigured();
+  const configuratieMelding = searchParams?.melding === "configuratie" || !supabaseConfigured;
 
   return (
     <main className="flex min-h-screen items-center justify-center px-5 py-12">
@@ -22,7 +25,13 @@ export default function LoginPage({
             je aan een cohort toe te voegen.
           </p>
         ) : null}
-        <LoginForm />
+        {configuratieMelding ? (
+          <p className="mb-5 border border-[#C45E3E]/30 bg-[#C45E3E]/5 p-4 text-sm text-[#8a3e29]">
+            Inloggen is tijdelijk niet beschikbaar omdat de Supabase configuratie ontbreekt.
+            Controleer de Vercel omgevingsvariabelen en probeer het daarna opnieuw.
+          </p>
+        ) : null}
+        <LoginForm supabaseConfigured={supabaseConfigured} />
       </Card>
     </main>
   );
