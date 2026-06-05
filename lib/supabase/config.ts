@@ -5,6 +5,7 @@ export type SupabaseConfig = {
 
 const SUPABASE_URL_ENV = "NEXT_PUBLIC_SUPABASE_URL";
 const SUPABASE_ANON_KEY_ENV = "NEXT_PUBLIC_SUPABASE_ANON_KEY";
+let hasWarnedMissingSupabaseConfig = false;
 
 function readRuntimeEnv(name: string) {
   // Keep this dynamic so Next.js cannot inline stale NEXT_PUBLIC_* values at build time.
@@ -35,6 +36,12 @@ function isSupportedUrl(value: string) {
 }
 
 function warnMissingSupabaseConfig(url: string | undefined, anonKey: string | undefined) {
+  if (hasWarnedMissingSupabaseConfig) {
+    return;
+  }
+
+  hasWarnedMissingSupabaseConfig = true;
+
   const diagnostics = {
     hasUrl: Boolean(url),
     hasAnonKey: Boolean(anonKey),
