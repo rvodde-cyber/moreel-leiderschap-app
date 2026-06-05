@@ -1,0 +1,36 @@
+{
+  "name": "moreel-leiderschap-app",
+  "version": "1.0.0",
+  "private": true,
+  "description": "",
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/rvodde-cyber/moreel-leiderschap-app.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/rvodde-cyber/moreel-leiderschap-app/issues"
+  },
+  "homepage": "https://github.com/rvodde-cyber/moreel-leiderschap-app#readme",
+  "dependencies": {
+    "next": "^16.2.7",
+    "react": "^19.2.7",
+    "react-dom": "^19.2.7"
+  },
+  "devDependencies": {
+    "@types/node": "^25.9.1",
+    "@types/react": "^19.2.16",
+    "@types/react-dom": "^19.2.3",
+    "typescript": "^6.0.3"
+  },
+  "overrides": {
+    "postcss": "8.5.15"
+  }
+}
