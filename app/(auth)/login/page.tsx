@@ -15,7 +15,6 @@ export default function LoginPage({
   const profielMelding = searchParams?.melding === "profiel";
   const linkMelding = searchParams?.melding === "link";
   const supabaseConfig = getSupabaseConfig();
-  const configuratieMelding = searchParams?.melding === "configuratie" && !supabaseConfig;
 
   return (
     <main className="flex min-h-screen items-center justify-center px-5 py-12">
@@ -34,12 +33,6 @@ export default function LoginPage({
         {linkMelding ? (
           <p className="mb-5 border border-[#C45E3E]/30 bg-[#C45E3E]/5 p-4 text-sm text-[#8a3e29]">
             Deze inloglink is verlopen of ongeldig. Vraag hieronder een nieuwe link aan.
-          </p>
-        ) : null}
-        {configuratieMelding ? (
-          <p className="mb-5 border border-[#C45E3E]/30 bg-[#C45E3E]/5 p-4 text-sm text-[#8a3e29]">
-            Inloggen is tijdelijk niet beschikbaar omdat de Supabase configuratie ontbreekt.
-            Controleer de Vercel omgevingsvariabelen en probeer het daarna opnieuw.
           </p>
         ) : null}
         <LoginForm supabaseConfig={supabaseConfig} />

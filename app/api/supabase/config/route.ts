@@ -7,11 +7,18 @@ const noStoreHeaders = {
   "Cache-Control": "no-store, max-age=0"
 };
 
+const envNames = {
+  url: ["NEXT", "PUBLIC", "SUPABASE", "URL"].join("_"),
+  anonKey: ["NEXT", "PUBLIC", "SUPABASE", "ANON", "KEY"].join("_")
+};
+
 export function GET() {
+  const env = process.env;
+
   return NextResponse.json(
     {
-      url: process.env.NEXT_PUBLIC_SUPABASE_URL,
-      anonKey: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+      url: env[envNames.url],
+      anonKey: env[envNames.anonKey]
     },
     {
       headers: noStoreHeaders
