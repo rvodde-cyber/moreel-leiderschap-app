@@ -3,19 +3,20 @@ import { Card, CardHeader } from "@/components/card";
 import { DimensieBadge } from "@/components/dimensie-badge";
 import { DagboekForm } from "@/app/(deelnemer)/dagboek/dagboek-form";
 import { getAppContext, requireRole } from "@/lib/app-data";
-import { MOREEL_MODEL, type DimensieKey } from "@/lib/model";
+import { MOREEL_MODEL, isDimensieKey, type DimensieKey } from "@/lib/model";
 import { createClient } from "@/lib/supabase/server";
 import { formatDate } from "@/lib/utils";
 
 export default async function DagboekPage({
   searchParams
 }: {
-  searchParams?: { dimensie?: DimensieKey; vergelijk?: string };
+  searchParams?: { dimensie?: string; vergelijk?: string };
 }) {
   await requireRole("deelnemer");
   const { profile, huidigeWeek } = await getAppContext();
   const supabase = createClient();
-  const filter = searchParams?.dimensie;
+  const filter = isDimensieKey(searchParams?.dimensie) ? searchParams.dimensie : undefined;
+  const hasInvalidFilter = Boolean(searchParams?.dimensie && !filter);
 
   let query = supabase
     .from("dagboek")
@@ -45,6 +46,11 @@ export default async function DagboekPage({
       <div className="space-y-6">
         <Card>
           <CardHeader title="Terugkijken" description="Nieuwste notities staan bovenaan." />
+          {hasInvalidFilter ? (
+            <p className="mb-5 border border-[#C45E3E]/25 bg-[#C45E3E]/5 p-4 text-sm text-[#8a3e29]">
+              Onbekende dimensiefilter genegeerd.
+            </p>
+          ) : null}
           <div className="mb-5 flex flex-wrap gap-2">
             <Link
               href="/dagboek"

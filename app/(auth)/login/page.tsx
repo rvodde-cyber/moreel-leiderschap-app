@@ -3,6 +3,9 @@ import { LoginForm } from "@/app/(auth)/login/login-form";
 import { getSupabaseConfig } from "@/lib/supabase/config";
 
 export const dynamic = "force-dynamic";
+export const metadata = {
+  title: "Inloggen"
+};
 
 export default function LoginPage({
   searchParams
@@ -10,6 +13,7 @@ export default function LoginPage({
   searchParams?: { melding?: string };
 }) {
   const profielMelding = searchParams?.melding === "profiel";
+  const linkMelding = searchParams?.melding === "link";
   const supabaseConfig = getSupabaseConfig();
   const configuratieMelding = searchParams?.melding === "configuratie";
 
@@ -25,6 +29,11 @@ export default function LoginPage({
           <p className="mb-5 border border-[#C45E3E]/30 bg-[#C45E3E]/5 p-4 text-sm text-[#8a3e29]">
             Je account is bekend, maar er is nog geen profiel gekoppeld. Vraag je begeleider om
             je aan een cohort toe te voegen.
+          </p>
+        ) : null}
+        {linkMelding ? (
+          <p className="mb-5 border border-[#C45E3E]/30 bg-[#C45E3E]/5 p-4 text-sm text-[#8a3e29]">
+            Deze inloglink is verlopen of ongeldig. Vraag hieronder een nieuwe link aan.
           </p>
         ) : null}
         {configuratieMelding ? (

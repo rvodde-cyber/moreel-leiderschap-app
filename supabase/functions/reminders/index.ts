@@ -16,7 +16,7 @@ const reminders: Record<ReminderKey, string> = {
 Deno.serve(async (request) => {
   const authHeader = request.headers.get("authorization");
   const secret = Deno.env.get("REMINDERS_CRON_SECRET");
-  if (secret && authHeader !== `Bearer ${secret}`) {
+  if (!secret || authHeader !== `Bearer ${secret}`) {
     return Response.json({ error: "Niet geautoriseerd" }, { status: 401 });
   }
 

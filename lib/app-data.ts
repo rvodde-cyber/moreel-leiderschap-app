@@ -1,3 +1,4 @@
+import { cache } from "react";
 import { redirect } from "next/navigation";
 import { isSupabaseConfigured } from "@/lib/supabase/config";
 import { createClient } from "@/lib/supabase/server";
@@ -10,29 +11,49 @@ export type AppContext = {
   huidigeWeek: number;
 };
 
-export async function getAppContext(): Promise<AppContext> {
+async function getAppContextImpl(): Promise<AppContext> {
   if (!isSupabaseConfigured()) {
     redirect("/login?melding=configuratie");
   }
 
   const supabase = createClient();
   const {
-    data: { user }
+    data: { user },
+    error: userError
   } = await supabase.auth.getUser();
 
-  if (!user) redirect("/login");
+  if (userError) {
+    console.error("Supabase auth user lookup failed.", { message: userError.message });
+  }
 
-  const { data: profile } = await supabase
+  if (!user) {
+    redirect("/login");
+  }
+
+  const { data: profile, error: profileError } = await supabase
     .from("profiles")
     .select("*")
     .eq("id", user.id)
     .single();
 
-  if (!profile) redirect("/login?melding=profiel");
+  if (profileError) {
+    console.error("Supabase profile lookup failed.", { message: profileError.message });
+  }
 
-  const { data: cohort } = profile.cohort_id
-    ? await supabase.from("cohorten").select("*").eq("id", profile.cohort_id).maybeSingle()
-    : { data: null };
+  if (!profile) {
+    redirect("/login?melding=profiel");
+  }
+
+  const cohortQuery = profile.cohort_id
+    ? supabase.from("cohorten").select("*").eq("id", profile.cohort_id).maybeSingle()
+    : profile.rol === "begeleider"
+      ? supabase.from("cohorten").select("*").eq("begeleider_id", profile.id).maybeSingle()
+      : Promise.resolve({ data: null, error: null });
+  const { data: cohort, error: cohortError } = await cohortQuery;
+
+  if (cohortError) {
+    console.error("Supabase cohort lookup failed.", { message: cohortError.message });
+  }
 
   return {
     profile,
@@ -40,6 +61,8 @@ export async function getAppContext(): Promise<AppContext> {
     huidigeWeek: calculateCurrentWeek(cohort?.startdatum)
   };
 }
+
+export const getAppContext = cache(getAppContextImpl);
 
 export async function requireRole(role: Profile["rol"]) {
   const context = await getAppContext();

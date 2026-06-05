@@ -65,6 +65,10 @@ export const DIMENSIE_BY_KEY = Object.fromEntries(
   MOREEL_MODEL.map((dimensie) => [dimensie.key, dimensie])
 ) as Record<DimensieKey, (typeof MOREEL_MODEL)[number]>;
 
+export function isDimensieKey(value: string | null | undefined): value is DimensieKey {
+  return Boolean(value && value in DIMENSIE_BY_KEY);
+}
+
 export const MICROGEWOONTES: Microgewoonte[] = [
   {
     week: "1",
