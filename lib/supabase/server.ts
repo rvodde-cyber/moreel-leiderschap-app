@@ -1,13 +1,21 @@
 import { cookies } from "next/headers";
 import { createServerClient } from "@supabase/ssr";
+import { getSupabaseConfig } from "@/lib/supabase/config";
 import type { Database } from "@/lib/supabase/types";
 
 export function createClient() {
   const cookieStore = cookies();
+  const supabaseConfig = getSupabaseConfig();
+
+  if (!supabaseConfig) {
+    throw new Error(
+      "Supabase runtime configuration is missing or invalid. Set NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY."
+    );
+  }
 
   return createServerClient<Database>(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    supabaseConfig.url,
+    supabaseConfig.anonKey,
     {
       cookies: {
         getAll() {

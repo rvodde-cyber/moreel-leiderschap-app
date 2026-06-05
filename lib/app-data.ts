@@ -1,4 +1,5 @@
 import { redirect } from "next/navigation";
+import { isSupabaseConfigured } from "@/lib/supabase/config";
 import { createClient } from "@/lib/supabase/server";
 import type { Cohort, Profile } from "@/lib/supabase/types";
 import { clampWeek } from "@/lib/utils";
@@ -10,6 +11,10 @@ export type AppContext = {
 };
 
 export async function getAppContext(): Promise<AppContext> {
+  if (!isSupabaseConfigured()) {
+    redirect("/login?melding=configuratie");
+  }
+
   const supabase = createClient();
   const {
     data: { user }

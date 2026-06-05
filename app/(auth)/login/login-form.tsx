@@ -6,7 +6,11 @@ import { Button } from "@/components/button";
 import { Input, Label } from "@/components/field";
 import { createClient } from "@/lib/supabase/browser";
 
-export function LoginForm() {
+type LoginFormProps = {
+  supabaseConfigured: boolean;
+};
+
+export function LoginForm({ supabaseConfigured }: LoginFormProps) {
   const [email, setEmail] = useState("");
   const [melding, setMelding] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
@@ -14,6 +18,11 @@ export function LoginForm() {
   function onSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setMelding(null);
+
+    if (!supabaseConfigured) {
+      setMelding("Inloggen is tijdelijk niet beschikbaar door ontbrekende configuratie.");
+      return;
+    }
 
     startTransition(async () => {
       const supabase = createClient();
@@ -48,7 +57,7 @@ export function LoginForm() {
           required
         />
       </div>
-      <Button type="submit" className="w-full" disabled={isPending}>
+      <Button type="submit" className="w-full" disabled={isPending || !supabaseConfigured}>
         <Mail size={18} />
         {isPending ? "Link wordt verstuurd..." : "Stuur magic link"}
       </Button>
