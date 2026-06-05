@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useEffect, useState, useTransition } from "react";
 import { Mail } from "lucide-react";
 import { Button } from "@/components/button";
 import { Input, Label } from "@/components/field";
@@ -14,19 +14,71 @@ type LoginFormProps = {
 export function LoginForm({ supabaseConfig }: LoginFormProps) {
   const [email, setEmail] = useState("");
   const [melding, setMelding] = useState<string | null>(null);
+  const [resolvedSupabaseConfig, setResolvedSupabaseConfig] = useState<SupabaseConfig | null>(
+    supabaseConfig
+  );
+  const [isConfigLoading, setIsConfigLoading] = useState(!supabaseConfig);
   const [isPending, startTransition] = useTransition();
-  const supabaseConfigured = Boolean(supabaseConfig);
+  const supabaseConfigured = Boolean(resolvedSupabaseConfig);
+
+  useEffect(() => {
+    if (supabaseConfig) {
+      setResolvedSupabaseConfig(supabaseConfig);
+      setIsConfigLoading(false);
+      return;
+    }
+
+    let isActive = true;
+
+    async function loadSupabaseConfig() {
+      setIsConfigLoading(true);
+
+      try {
+        const response = await fetch("/api/supabase/config", {
+          cache: "no-store"
+        });
+        const data = (await response.json().catch(() => null)) as
+          | { configured: true; config: SupabaseConfig }
+          | { configured: false }
+          | null;
+
+        if (!isActive) return;
+
+        if (response.ok && data?.configured) {
+          setResolvedSupabaseConfig(data.config);
+          return;
+        }
+
+        setResolvedSupabaseConfig(null);
+        setMelding("Inloggen is tijdelijk niet beschikbaar door ontbrekende configuratie.");
+      } catch {
+        if (!isActive) return;
+        setResolvedSupabaseConfig(null);
+        setMelding("We konden de inlogconfiguratie niet laden. Probeer het opnieuw.");
+      } finally {
+        if (isActive) {
+          setIsConfigLoading(false);
+        }
+      }
+    }
+
+    loadSupabaseConfig();
+
+    return () => {
+      isActive = false;
+    };
+  }, [supabaseConfig]);
 
   function onSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setMelding(null);
 
-    if (!supabaseConfig) {
+    if (!resolvedSupabaseConfig) {
       setMelding("Inloggen is tijdelijk niet beschikbaar door ontbrekende configuratie.");
       return;
     }
 
-    const config = supabaseConfig;
+    const config = resolvedSupabaseConfig;
 
     startTransition(async () => {
       const supabase = createClient(config);
@@ -61,9 +113,17 @@ export function LoginForm({ supabaseConfig }: LoginFormProps) {
           required
         />
       </div>
-      <Button type="submit" className="w-full" disabled={isPending || !supabaseConfigured}>
+      <Button
+        type="submit"
+        className="w-full"
+        disabled={isPending || isConfigLoading || !supabaseConfigured}
+      >
         <Mail size={18} />
-        {isPending ? "Link wordt verstuurd..." : "Stuur magic link"}
+        {isConfigLoading
+          ? "Configuratie laden..."
+          : isPending
+            ? "Link wordt verstuurd..."
+            : "Stuur magic link"}
       </Button>
       {melding ? (
         <p className="border border-line bg-white/70 p-4 text-sm text-muted" role="status">
