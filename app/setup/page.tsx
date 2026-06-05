@@ -1,9 +1,12 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
+import { createClient as createSupabaseAdminClient } from "@supabase/supabase-js";
 import { Button, buttonVariants } from "@/components/button";
 import { Card, CardHeader } from "@/components/card";
 import { Input, Label } from "@/components/field";
+import { getSupabaseConfig } from "@/lib/supabase/config";
 import { createClient } from "@/lib/supabase/server";
+import type { Database } from "@/lib/supabase/types";
 
 export const dynamic = "force-dynamic";
 export const metadata = {
@@ -13,6 +16,127 @@ export const metadata = {
 function stringValue(formData: FormData, key: string) {
   const value = formData.get(key);
   return typeof value === "string" ? value.trim() : "";
+}
+
+function isMissingRpcError(error: { code?: string; message: string }) {
+  return error.code === "PGRST202" || error.message.toLowerCase().includes("could not find the function");
+}
+
+function setupErrorUrl(message: string) {
+  return `/setup?melding=${encodeURIComponent(message)}`;
+}
+
+async function bootstrapWithServiceRole({
+  cohortNaam,
+  begeleiderNaam
+}: {
+  cohortNaam: string;
+  begeleiderNaam: string | null;
+}) {
+  const supabaseConfig = getSupabaseConfig();
+  const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+
+  if (!supabaseConfig || !serviceRoleKey) {
+    throw new Error(
+      "De databasefunctie ontbreekt nog. Voer de Supabase migration uit of voeg tijdelijk SUPABASE_SERVICE_ROLE_KEY toe aan Vercel."
+    );
+  }
+
+  const sessionClient = createClient();
+  const {
+    data: { user },
+    error: userError
+  } = await sessionClient.auth.getUser();
+
+  if (userError || !user) {
+    throw new Error("Je moet ingelogd zijn om de setup uit te voeren.");
+  }
+
+  const admin = createSupabaseAdminClient<Database>(supabaseConfig.url, serviceRoleKey, {
+    auth: {
+      persistSession: false,
+      autoRefreshToken: false
+    }
+  });
+  const { count: otherProfileCount, error: countError } = await admin
+    .from("profiles")
+    .select("id", { count: "exact", head: true })
+    .neq("id", user.id);
+
+  if (countError) {
+    throw new Error(countError.message);
+  }
+
+  if ((otherProfileCount ?? 0) > 0) {
+    throw new Error("Setup is alleen beschikbaar voor de eerste gebruiker.");
+  }
+
+  const fallbackName =
+    begeleiderNaam ||
+    (typeof user.user_metadata?.naam === "string" ? user.user_metadata.naam : null) ||
+    user.email?.split("@")[0] ||
+    "Begeleider";
+  const { error: profileError } = await admin.from("profiles").upsert({
+    id: user.id,
+    naam: fallbackName,
+    rol: "begeleider",
+    cohort_id: null
+  });
+
+  if (profileError) {
+    throw new Error(profileError.message);
+  }
+
+  const { data: existingCohort, error: existingCohortError } = await admin
+    .from("cohorten")
+    .select("id")
+    .eq("begeleider_id", user.id)
+    .order("startdatum", { ascending: true, nullsFirst: false })
+    .limit(1)
+    .maybeSingle();
+
+  if (existingCohortError) {
+    throw new Error(existingCohortError.message);
+  }
+
+  const cohortId = existingCohort?.id;
+
+  if (cohortId) {
+    const { error } = await admin.from("cohorten").update({ naam: cohortNaam }).eq("id", cohortId);
+    if (error) throw new Error(error.message);
+  } else {
+    const { data: newCohort, error } = await admin
+      .from("cohorten")
+      .insert({
+        naam: cohortNaam,
+        startdatum: new Date().toISOString().slice(0, 10),
+        begeleider_id: user.id
+      })
+      .select("id")
+      .single();
+
+    if (error) throw new Error(error.message);
+
+    const { error: updateProfileError } = await admin
+      .from("profiles")
+      .update({ cohort_id: newCohort.id })
+      .eq("id", user.id);
+
+    if (updateProfileError) {
+      throw new Error(updateProfileError.message);
+    }
+
+    return;
+  }
+
+  const { error: updateProfileError } = await admin
+    .from("profiles")
+    .update({ cohort_id: cohortId })
+    .eq("id", user.id);
+
+  if (updateProfileError) {
+    throw new Error(updateProfileError.message);
+  }
 }
 
 async function bootstrapFirstBegeleider(formData: FormData) {
@@ -27,7 +151,19 @@ async function bootstrapFirstBegeleider(formData: FormData) {
   });
 
   if (error) {
-    redirect(`/setup?melding=${encodeURIComponent(error.message)}`);
+    if (!isMissingRpcError(error)) {
+      redirect(setupErrorUrl(error.message));
+    }
+
+    try {
+      await bootstrapWithServiceRole({ cohortNaam, begeleiderNaam });
+    } catch (fallbackError) {
+      redirect(
+        setupErrorUrl(
+          fallbackError instanceof Error ? fallbackError.message : "Setup fallback mislukt."
+        )
+      );
+    }
   }
 
   redirect("/begeleider/dashboard");
