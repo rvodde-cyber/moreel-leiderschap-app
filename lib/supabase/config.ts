@@ -3,6 +3,15 @@ export type SupabaseConfig = {
   anonKey: string;
 };
 
+const SUPABASE_URL_ENV = "NEXT_PUBLIC_SUPABASE_URL";
+const SUPABASE_ANON_KEY_ENV = "NEXT_PUBLIC_SUPABASE_ANON_KEY";
+
+function readRuntimeEnv(name: string) {
+  // Keep this dynamic so Next.js cannot inline stale NEXT_PUBLIC_* values at build time.
+  const env = typeof process !== "undefined" ? process.env : undefined;
+  return env?.[name]?.trim();
+}
+
 function isPlaceholderValue(value: string) {
   const normalizedValue = value.toLowerCase();
 
@@ -16,21 +25,38 @@ function isPlaceholderValue(value: string) {
   );
 }
 
+function isSupportedUrl(value: string) {
+  try {
+    const parsedUrl = new URL(value);
+    return parsedUrl.protocol === "https:" || parsedUrl.protocol === "http:";
+  } catch {
+    return false;
+  }
+}
+
+function warnMissingSupabaseConfig(url: string | undefined, anonKey: string | undefined) {
+  const diagnostics = {
+    hasUrl: Boolean(url),
+    hasAnonKey: Boolean(anonKey),
+    urlIsPlaceholder: url ? isPlaceholderValue(url) : false,
+    anonKeyIsPlaceholder: anonKey ? isPlaceholderValue(anonKey) : false,
+    urlIsValid: url ? isSupportedUrl(url) : false
+  };
+
+  console.warn("Supabase runtime configuration is missing or invalid.", diagnostics);
+}
+
 export function getSupabaseConfig(): SupabaseConfig | null {
-  const url = process.env.NEXT_PUBLIC_SUPABASE_URL?.trim();
-  const anonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY?.trim();
+  const url = readRuntimeEnv(SUPABASE_URL_ENV);
+  const anonKey = readRuntimeEnv(SUPABASE_ANON_KEY_ENV);
 
   if (!url || !anonKey || isPlaceholderValue(url) || isPlaceholderValue(anonKey)) {
+    warnMissingSupabaseConfig(url, anonKey);
     return null;
   }
 
-  try {
-    const parsedUrl = new URL(url);
-
-    if (parsedUrl.protocol !== "https:" && parsedUrl.protocol !== "http:") {
-      return null;
-    }
-  } catch {
+  if (!isSupportedUrl(url)) {
+    warnMissingSupabaseConfig(url, anonKey);
     return null;
   }
 

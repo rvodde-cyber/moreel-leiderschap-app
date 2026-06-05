@@ -21,13 +21,15 @@ export function LoginForm({ supabaseConfig }: LoginFormProps) {
     event.preventDefault();
     setMelding(null);
 
-    if (!supabaseConfigured) {
+    if (!supabaseConfig) {
       setMelding("Inloggen is tijdelijk niet beschikbaar door ontbrekende configuratie.");
       return;
     }
 
+    const config = supabaseConfig;
+
     startTransition(async () => {
-      const supabase = createClient(supabaseConfig);
+      const supabase = createClient(config);
       const origin = window.location.origin;
       const { error } = await supabase.auth.signInWithOtp({
         email: email.trim(),
