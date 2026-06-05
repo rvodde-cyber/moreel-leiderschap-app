@@ -1,5 +1,4 @@
 import { NextResponse } from "next/server";
-import { getSupabaseConfig, getSupabaseConfigDiagnostics } from "@/lib/supabase/config";
 
 export const dynamic = "force-dynamic";
 export const runtime = "edge";
@@ -9,25 +8,10 @@ const noStoreHeaders = {
 };
 
 export function GET() {
-  const supabaseConfig = getSupabaseConfig();
-
-  if (!supabaseConfig) {
-    return NextResponse.json(
-      {
-        configured: false,
-        diagnostics: getSupabaseConfigDiagnostics()
-      },
-      {
-        status: 503,
-        headers: noStoreHeaders
-      }
-    );
-  }
-
   return NextResponse.json(
     {
-      configured: true,
-      config: supabaseConfig
+      url: process.env.NEXT_PUBLIC_SUPABASE_URL,
+      anonKey: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
     },
     {
       headers: noStoreHeaders

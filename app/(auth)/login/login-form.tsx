@@ -37,15 +37,12 @@ export function LoginForm({ supabaseConfig }: LoginFormProps) {
         const response = await fetch("/api/supabase/config", {
           cache: "no-store"
         });
-        const data = (await response.json().catch(() => null)) as
-          | { configured: true; config: SupabaseConfig }
-          | { configured: false }
-          | null;
+        const data = (await response.json().catch(() => null)) as SupabaseConfig | null;
 
         if (!isActive) return;
 
-        if (response.ok && data?.configured) {
-          setResolvedSupabaseConfig(data.config);
+        if (response.ok && data?.url && data?.anonKey) {
+          setResolvedSupabaseConfig(data);
           return;
         }
 
