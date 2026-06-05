@@ -58,7 +58,7 @@ Deno.serve(async (request) => {
         body: JSON.stringify({
           from,
           to: userData.user.email,
-          subject: "Moreel Vakmanschap — kleine herinnering",
+          subject: "Moreel Leiderschap — kleine herinnering",
           text: reminders[reminder]
         })
       });

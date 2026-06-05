@@ -1,7 +1,7 @@
 {
   "name": "moreel-leiderschap-app",
   "version": "1.0.0",
-  "description": "Moreel Vakmanschap platform voor deelnemers en begeleiders.",
+  "description": "Moreel Leiderschap platform uit de reeks Moreel Vakmanschap.",
   "private": true,
   "scripts": {
     "dev": "next dev",

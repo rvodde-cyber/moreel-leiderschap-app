@@ -1,6 +1,7 @@
 "use client";
 
 import { Button } from "@/components/button";
+import { INSTITUTION_FOOTER } from "@/lib/brand";
 
 export default function ErrorPage({
   reset
@@ -22,6 +23,7 @@ export default function ErrorPage({
         <Button type="button" className="mt-6" onClick={reset}>
           Opnieuw proberen
         </Button>
+        <p className="mt-8 border-t border-line pt-4 text-sm text-muted">{INSTITUTION_FOOTER}</p>
       </section>
     </main>
   );

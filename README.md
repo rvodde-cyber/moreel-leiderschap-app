@@ -1,6 +1,7 @@
-# Moreel Vakmanschap platform
+# Moreel Leiderschap
 
-Next.js 14 App Router applicatie voor de leergang Moreel Vakmanschap.
+Next.js 14 App Router applicatie voor **Moreel Leiderschap**, uit de reeks
+**Moreel Vakmanschap**.
 
 ## Stack
 

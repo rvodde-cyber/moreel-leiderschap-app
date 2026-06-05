@@ -16,7 +16,7 @@ export function DagboekForm({ week }: { week: number }) {
   function openClaude() {
     const model = MOREEL_MODEL.find((item) => item.key === dimensie);
     const vraag = [
-      "Ik volg een leergang Moreel Vakmanschap.",
+      "Ik volg Moreel Leiderschap, uit de reeks Moreel Vakmanschap.",
       "Help mij reflecteren op deze dagboeknotitie zonder oordeel en zonder advies te forceren.",
       model ? `Dimensie: ${model.naam} — ${model.kernvraag}` : "",
       "",

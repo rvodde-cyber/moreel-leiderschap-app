@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { buttonVariants } from "@/components/button";
+import { INSTITUTION_FOOTER } from "@/lib/brand";
 
 export default function NotFoundPage() {
   return (
@@ -15,6 +16,7 @@ export default function NotFoundPage() {
         <Link href="/" className={buttonVariants({ className: "mt-6" })}>
           Naar start
         </Link>
+        <p className="mt-8 border-t border-line pt-4 text-sm text-muted">{INSTITUTION_FOOTER}</p>
       </section>
     </main>
   );
