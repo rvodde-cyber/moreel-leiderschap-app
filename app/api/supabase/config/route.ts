@@ -1,4 +1,6 @@
 import { NextResponse } from "next/server";
+import { getSupabaseConfig, getSupabaseConfigDiagnostics } from "@/lib/supabase/config";
+import { checkSupabaseAvailability } from "@/lib/supabase/status";
 
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
@@ -7,20 +9,36 @@ const noStoreHeaders = {
   "Cache-Control": "no-store, max-age=0"
 };
 
-const envNames = {
-  url: ["NEXT", "PUBLIC", "SUPABASE", "URL"].join("_"),
-  anonKey: ["NEXT", "PUBLIC", "SUPABASE", "ANON", "KEY"].join("_")
-};
+export async function GET() {
+  const supabaseConfig = getSupabaseConfig();
 
-export function GET() {
-  const env = process.env;
+  if (!supabaseConfig) {
+    return NextResponse.json(
+      {
+        url: null,
+        anonKey: null,
+        availability: {
+          status: "unavailable",
+          message: "Inloggen is tijdelijk niet beschikbaar door ontbrekende Supabase-configuratie."
+        },
+        diagnostics: getSupabaseConfigDiagnostics()
+      },
+      {
+        status: 503,
+        headers: noStoreHeaders
+      }
+    );
+  }
+
+  const availability = await checkSupabaseAvailability(supabaseConfig);
 
   return NextResponse.json(
     {
-      url: env[envNames.url],
-      anonKey: env[envNames.anonKey]
+      ...supabaseConfig,
+      availability
     },
     {
+      status: availability.status === "available" ? 200 : 503,
       headers: noStoreHeaders
     }
   );

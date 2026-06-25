@@ -1,4 +1,5 @@
 import { NextResponse, type NextRequest } from "next/server";
+import { isSupabaseUnavailableError } from "@/lib/supabase/availability";
 import { isSupabaseConfigured } from "@/lib/supabase/config";
 import { createClient } from "@/lib/supabase/server";
 
@@ -28,10 +29,13 @@ export async function GET(request: NextRequest) {
     }
 
     const supabase = createClient();
-    const { error } = await supabase.auth.exchangeCodeForSession(code);
+    const { error } = await supabase.auth.exchangeCodeForSession(code).catch((exchangeError) => ({
+      error: exchangeError
+    }));
 
     if (error) {
-      return NextResponse.redirect(new URL("/login?melding=link", request.url));
+      const melding = isSupabaseUnavailableError(error) ? "supabase" : "link";
+      return NextResponse.redirect(new URL(`/login?melding=${melding}`, request.url));
     }
   }
 

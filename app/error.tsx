@@ -16,7 +16,8 @@ export default function ErrorPage({
         </p>
         <h1 className="font-display text-4xl text-ink">We konden deze pagina niet laden.</h1>
         <p className="mt-4 text-muted">
-          Probeer het opnieuw. Blijft dit gebeuren, log dan opnieuw in of neem contact op met je
+          Probeer het opnieuw. De database kan tijdelijk onbereikbaar zijn, bijvoorbeeld wanneer
+          Supabase gepauzeerd is. Blijft dit gebeuren, log dan opnieuw in of neem contact op met je
           begeleider.
         </p>
         <Button type="button" className="mt-6" onClick={reset}>

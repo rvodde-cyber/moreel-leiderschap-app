@@ -5,25 +5,39 @@ import { Mail } from "lucide-react";
 import { Button } from "@/components/button";
 import { Input, Label } from "@/components/field";
 import { createClient } from "@/lib/supabase/browser";
+import {
+  SUPABASE_UNAVAILABLE_MESSAGE,
+  isSupabaseUnavailableMessage,
+  type SupabaseAvailability
+} from "@/lib/supabase/availability";
 import type { SupabaseConfig } from "@/lib/supabase/config";
 
 type LoginFormProps = {
   supabaseConfig: SupabaseConfig | null;
+  supabaseAvailability: SupabaseAvailability | null;
 };
 
-export function LoginForm({ supabaseConfig }: LoginFormProps) {
+type SupabaseConfigResponse = (SupabaseConfig & { availability?: SupabaseAvailability }) | null;
+
+export function LoginForm({ supabaseConfig, supabaseAvailability }: LoginFormProps) {
   const [email, setEmail] = useState("");
   const [melding, setMelding] = useState<string | null>(null);
   const [resolvedSupabaseConfig, setResolvedSupabaseConfig] = useState<SupabaseConfig | null>(
     supabaseConfig
   );
+  const [resolvedAvailability, setResolvedAvailability] = useState<SupabaseAvailability | null>(
+    supabaseAvailability
+  );
   const [isConfigLoading, setIsConfigLoading] = useState(!supabaseConfig);
   const [isPending, startTransition] = useTransition();
   const supabaseConfigured = Boolean(resolvedSupabaseConfig);
+  const supabaseAvailable = resolvedAvailability?.status !== "unavailable";
+  const canSubmit = supabaseConfigured && supabaseAvailable;
 
   useEffect(() => {
     if (supabaseConfig) {
       setResolvedSupabaseConfig(supabaseConfig);
+      setResolvedAvailability(supabaseAvailability);
       setIsConfigLoading(false);
       return;
     }
@@ -37,20 +51,29 @@ export function LoginForm({ supabaseConfig }: LoginFormProps) {
         const response = await fetch("/api/supabase/config", {
           cache: "no-store"
         });
-        const data = (await response.json().catch(() => null)) as SupabaseConfig | null;
+        const data = (await response.json().catch(() => null)) as SupabaseConfigResponse;
 
         if (!isActive) return;
 
-        if (response.ok && data?.url && data?.anonKey) {
+        if (data?.url && data?.anonKey) {
           setResolvedSupabaseConfig(data);
+          setResolvedAvailability(data.availability ?? null);
+          if (data.availability?.status === "unavailable") {
+            setMelding(data.availability.message);
+          }
           return;
         }
 
         setResolvedSupabaseConfig(null);
-        setMelding("Inloggen is tijdelijk niet beschikbaar door ontbrekende configuratie.");
+        setResolvedAvailability(null);
+        setMelding(
+          data?.availability?.message ??
+            "Inloggen is tijdelijk niet beschikbaar door ontbrekende configuratie."
+        );
       } catch {
         if (!isActive) return;
         setResolvedSupabaseConfig(null);
+        setResolvedAvailability(null);
         setMelding("We konden de inlogconfiguratie niet laden. Probeer het opnieuw.");
       } finally {
         if (isActive) {
@@ -64,7 +87,7 @@ export function LoginForm({ supabaseConfig }: LoginFormProps) {
     return () => {
       isActive = false;
     };
-  }, [supabaseConfig]);
+  }, [supabaseConfig, supabaseAvailability]);
 
   function onSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -75,23 +98,37 @@ export function LoginForm({ supabaseConfig }: LoginFormProps) {
       return;
     }
 
+    if (resolvedAvailability?.status === "unavailable") {
+      setMelding(resolvedAvailability.message);
+      return;
+    }
+
     const config = resolvedSupabaseConfig;
 
     startTransition(async () => {
-      const supabase = createClient(config);
-      const origin = window.location.origin;
-      const { error } = await supabase.auth.signInWithOtp({
-        email: email.trim(),
-        options: {
-          emailRedirectTo: `${origin}/auth/callback`
-        }
-      });
+      try {
+        const supabase = createClient(config);
+        const origin = window.location.origin;
+        const { error } = await supabase.auth.signInWithOtp({
+          email: email.trim(),
+          options: {
+            emailRedirectTo: `${origin}/auth/callback`
+          }
+        });
 
-      setMelding(
-        error
-          ? "We konden de link niet versturen. Controleer je e-mailadres en probeer opnieuw."
-          : "Bekijk je inbox. We hebben een veilige inloglink gestuurd."
-      );
+        if (error) {
+          setMelding(
+            isSupabaseUnavailableMessage(error.message)
+              ? SUPABASE_UNAVAILABLE_MESSAGE
+              : "We konden de link niet versturen. Controleer je e-mailadres en probeer opnieuw."
+          );
+          return;
+        }
+
+        setMelding("Bekijk je inbox. We hebben een veilige inloglink gestuurd.");
+      } catch {
+        setMelding(SUPABASE_UNAVAILABLE_MESSAGE);
+      }
     });
   }
 
@@ -113,13 +150,15 @@ export function LoginForm({ supabaseConfig }: LoginFormProps) {
       <Button
         type="submit"
         className="w-full"
-        disabled={isPending || isConfigLoading || !supabaseConfigured}
+        disabled={isPending || isConfigLoading || !canSubmit}
       >
         <Mail size={18} />
         {isConfigLoading
           ? "Configuratie laden..."
           : isPending
             ? "Link wordt verstuurd..."
+            : !supabaseAvailable
+              ? "Supabase niet beschikbaar"
             : "Stuur magic link"}
       </Button>
       {melding ? (
