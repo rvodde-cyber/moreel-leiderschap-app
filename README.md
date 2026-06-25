@@ -33,6 +33,18 @@ supabase/migrations/20260604210900_init_moreel_vakmanschap.sql
 Deze migratie maakt alle tabellen, RLS policies en aggregate views aan. De tabel `groepsruimte`
 bevat bewust geen `gebruiker_id`, zodat posts ook voor begeleiders anoniem blijven.
 
+### Gedeeld Supabase-project
+
+Dit Supabase-project kan ook **Moral Maps** dragen. De migratie
+`supabase/migrations/20260625065300_add_moral_maps_results.sql` voegt de anonieme tabel
+`moralmaps_results` toe met RLS voor insert/select via de anon key. Zet in de Vercel-projecten van
+Moral Maps dezelfde Supabase waarden als hier:
+
+- `VITE_SUPABASE_URL` = `NEXT_PUBLIC_SUPABASE_URL`
+- `VITE_SUPABASE_ANON_KEY` = `NEXT_PUBLIC_SUPABASE_ANON_KEY`
+
+Daarmee is er geen apart Supabase-project voor Moral Maps nodig.
+
 ## Deployment
 
 Zet in Vercel minimaal deze variabelen:
