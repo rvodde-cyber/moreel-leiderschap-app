@@ -1,5 +1,6 @@
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
+import { isSupabaseUnavailableError } from "@/lib/supabase/availability";
 import { getSupabaseConfig } from "@/lib/supabase/config";
 import type { Database } from "@/lib/supabase/types";
 
@@ -18,6 +19,15 @@ function isProtectedPath(pathname: string) {
   );
 }
 
+function loginRedirect(request: NextRequest, melding?: string) {
+  const url = new URL("/login", request.url);
+  if (melding) {
+    url.searchParams.set("melding", melding);
+  }
+
+  return NextResponse.redirect(url);
+}
+
 export async function updateSession(request: NextRequest) {
   let response = NextResponse.next({
     request
@@ -28,7 +38,7 @@ export async function updateSession(request: NextRequest) {
 
   if (!supabaseConfig) {
     if (protectedPath) {
-      return NextResponse.redirect(new URL("/login?melding=configuratie", request.url));
+      return loginRedirect(request, "configuratie");
     }
 
     return response;
@@ -59,12 +69,16 @@ export async function updateSession(request: NextRequest) {
       error
     } = await supabase.auth.getUser();
 
-    if (protectedPath && (error || !user)) {
-      return NextResponse.redirect(new URL("/login", request.url));
+    if (protectedPath && error) {
+      return loginRedirect(request, isSupabaseUnavailableError(error) ? "supabase" : undefined);
+    }
+
+    if (protectedPath && !user) {
+      return loginRedirect(request);
     }
   } catch {
     if (protectedPath) {
-      return NextResponse.redirect(new URL("/login", request.url));
+      return loginRedirect(request, "supabase");
     }
 
     return response;

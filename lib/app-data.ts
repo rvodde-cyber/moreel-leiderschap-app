@@ -1,5 +1,6 @@
 import { cache } from "react";
 import { redirect } from "next/navigation";
+import { isSupabaseUnavailableError } from "@/lib/supabase/availability";
 import { isSupabaseConfigured } from "@/lib/supabase/config";
 import { createClient } from "@/lib/supabase/server";
 import type { Cohort, Profile } from "@/lib/supabase/types";
@@ -24,6 +25,9 @@ async function getAppContextImpl(): Promise<AppContext> {
 
   if (userError) {
     console.error("Supabase auth user lookup failed.", { message: userError.message });
+    if (isSupabaseUnavailableError(userError)) {
+      redirect("/login?melding=supabase");
+    }
   }
 
   if (!user) {
@@ -38,6 +42,9 @@ async function getAppContextImpl(): Promise<AppContext> {
 
   if (profileError) {
     console.error("Supabase profile lookup failed.", { message: profileError.message });
+    if (isSupabaseUnavailableError(profileError)) {
+      redirect("/login?melding=supabase");
+    }
   }
 
   if (!profile) {
@@ -53,6 +60,9 @@ async function getAppContextImpl(): Promise<AppContext> {
 
   if (cohortError) {
     console.error("Supabase cohort lookup failed.", { message: cohortError.message });
+    if (isSupabaseUnavailableError(cohortError)) {
+      redirect("/login?melding=supabase");
+    }
   }
 
   return {

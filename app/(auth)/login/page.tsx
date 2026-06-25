@@ -1,20 +1,47 @@
 import { Card, CardHeader } from "@/components/card";
 import { LoginForm } from "@/app/(auth)/login/login-form";
 import { getSupabaseConfig } from "@/lib/supabase/config";
+import { SUPABASE_UNAVAILABLE_MESSAGE, type SupabaseAvailability } from "@/lib/supabase/availability";
+import { checkSupabaseAvailability } from "@/lib/supabase/status";
 
 export const dynamic = "force-dynamic";
 export const metadata = {
   title: "Inloggen"
 };
 
-export default function LoginPage({
+function loginMelding(
+  melding: string | undefined,
+  supabaseAvailability: SupabaseAvailability | null
+) {
+  if (supabaseAvailability?.status === "unavailable" || melding === "supabase") {
+    return SUPABASE_UNAVAILABLE_MESSAGE;
+  }
+
+  if (melding === "profiel") {
+    return "Je account is bekend, maar er is nog geen profiel gekoppeld. Vraag je begeleider om je aan een cohort toe te voegen.";
+  }
+
+  if (melding === "link") {
+    return "Deze inloglink is verlopen of ongeldig. Vraag hieronder een nieuwe link aan.";
+  }
+
+  if (melding === "configuratie") {
+    return "Inloggen is tijdelijk niet beschikbaar door ontbrekende Supabase-configuratie.";
+  }
+
+  return null;
+}
+
+export default async function LoginPage({
   searchParams
 }: {
   searchParams?: { melding?: string };
 }) {
-  const profielMelding = searchParams?.melding === "profiel";
-  const linkMelding = searchParams?.melding === "link";
   const supabaseConfig = getSupabaseConfig();
+  const supabaseAvailability = supabaseConfig
+    ? await checkSupabaseAvailability(supabaseConfig)
+    : null;
+  const melding = loginMelding(searchParams?.melding, supabaseAvailability);
 
   return (
     <main className="flex min-h-screen items-center justify-center px-5 py-12">
@@ -24,18 +51,15 @@ export default function LoginPage({
           title="Welkom bij Moreel Vakmanschap"
           description="Log in met een eenmalige link. We gebruiken geen wachtwoorden en tonen nooit auteurs in de groepsruimte."
         />
-        {profielMelding ? (
+        {melding ? (
           <p className="mb-5 border border-[#C45E3E]/30 bg-[#C45E3E]/5 p-4 text-sm text-[#8a3e29]">
-            Je account is bekend, maar er is nog geen profiel gekoppeld. Vraag je begeleider om
-            je aan een cohort toe te voegen.
+            {melding}
           </p>
         ) : null}
-        {linkMelding ? (
-          <p className="mb-5 border border-[#C45E3E]/30 bg-[#C45E3E]/5 p-4 text-sm text-[#8a3e29]">
-            Deze inloglink is verlopen of ongeldig. Vraag hieronder een nieuwe link aan.
-          </p>
-        ) : null}
-        <LoginForm supabaseConfig={supabaseConfig} />
+        <LoginForm
+          supabaseConfig={supabaseConfig}
+          supabaseAvailability={supabaseAvailability}
+        />
       </Card>
     </main>
   );
