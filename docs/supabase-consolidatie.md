@@ -33,6 +33,16 @@ VITE_SUPABASE_ANON_KEY=<waarde van NEXT_PUBLIC_SUPABASE_ANON_KEY>
 Als `CRON_SECRET` op Moral Maps staat, mag die blijven staan voor `/api/keep-alive`. Die endpoint
 pingt dan dezelfde gedeelde tabel `moralmaps_results`.
 
+De directe Moral Maps-wijziging staat ook klaar als patch:
+
+```txt
+docs/moral-maps-shared-supabase.patch
+```
+
+Deze patch zet `.env.example`, `README.md`, `supabase_setup.sql` en de keep-alive toelichting van
+Moral Maps op het gedeelde Supabase-project. De Cloud Agent kon deze patch niet naar de
+`moral-maps` repository pushen, omdat `cursor[bot]` daar geen schrijfrechten heeft.
+
 ## Projecten die zonder Supabase kunnen
 
 De volgende repositories hadden bij de scan geen Supabase dependency of Supabase-bestanden:

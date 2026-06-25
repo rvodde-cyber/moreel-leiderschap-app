@@ -1,0 +1,88 @@
+From 0a0225864e0e04dda8599914f1fa8011add49bbb Mon Sep 17 00:00:00 2001
+From: Cursor Agent <cursoragent@cursor.com>
+Date: Thu, 25 Jun 2026 06:56:46 +0000
+Subject: [PATCH] Point Moral Maps to shared Supabase project
+
+---
+ .env.example       |  3 ++-
+ README.md          | 21 +++++++++++++++++++++
+ api/keep-alive.js  |  3 ++-
+ supabase_setup.sql |  8 ++++++--
+ 4 files changed, 31 insertions(+), 4 deletions(-)
+
+diff --git a/.env.example b/.env.example
+index f6a6eca..2fc5cca 100644
+--- a/.env.example
++++ b/.env.example
+@@ -1,4 +1,5 @@
+-VITE_SUPABASE_URL=
++# Shared Supabase project with moreel-leiderschap-app.
++VITE_SUPABASE_URL=https://zkiavxldremirlvcmoef.supabase.co
+ VITE_SUPABASE_ANON_KEY=
+ # Legacy fallback still supported by the app:
+ # VITE_SUPABASE_KEY=
+diff --git a/README.md b/README.md
+index 1122a8c..8f25da5 100644
+--- a/README.md
++++ b/README.md
+@@ -51,6 +51,27 @@ moral-maps/
+ 
+ ## Supabase
+ 
++Moral Maps gebruikt geen eigen Supabase-project meer. Gebruik het gedeelde project van
++`moreel-leiderschap-app`:
++
++```txt
++Project URL: https://zkiavxldremirlvcmoef.supabase.co
++Tabel: moralmaps_results
++```
++
++De database-migratie staat als bron van waarheid in:
++
++```txt
++moreel-leiderschap-app/supabase/migrations/20260625065300_add_moral_maps_results.sql
++```
++
++Zet in alle drie de Vercel-projecten dezelfde publieke Supabase-waarden:
++
++```txt
++VITE_SUPABASE_URL=https://zkiavxldremirlvcmoef.supabase.co
++VITE_SUPABASE_ANON_KEY=<anon key van het gedeelde Supabase-project>
++```
++
+ Tabel: `moralmaps_results`
+ 
+ | Kolom | Type | Inhoud |
+diff --git a/api/keep-alive.js b/api/keep-alive.js
+index e619ea3..da76003 100644
+--- a/api/keep-alive.js
++++ b/api/keep-alive.js
+@@ -1,6 +1,7 @@
+ /**
+- * Houdt het Supabase free-tier project actief (pauze na ~7 dagen inactiviteit).
++ * Houdt het gedeelde Moreel Vakmanschap Supabase-project actief.
+  * Wordt dagelijks aangeroepen via Vercel Cron (zie vercel.json).
++ * Ping: public.moralmaps_results in project zkiavxldremirlvcmoef.
+  * Handmatig testen: GET /api/keep-alive (met CRON_SECRET in Authorization header indien gezet).
+  */
+ export default async function handler(req, res) {
+diff --git a/supabase_setup.sql b/supabase_setup.sql
+index 1d38775..ef84e07 100644
+--- a/supabase_setup.sql
++++ b/supabase_setup.sql
+@@ -1,6 +1,10 @@
+ -- Moral Maps — Supabase schema + RLS
+--- Project: zkiavxldremirlvcmoef
+--- Run in Supabase SQL Editor (once per environment)
++-- Shared project: zkiavxldremirlvcmoef
++-- Source of truth:
++-- moreel-leiderschap-app/supabase/migrations/20260625065300_add_moral_maps_results.sql
++--
++-- This file is kept as a compatibility copy for manual setup. Do not create a separate
++-- Supabase project for Moral Maps; run the migration in the shared Moreel Vakmanschap project.
+ 
+ create table if not exists public.moralmaps_results (
+   id uuid primary key default gen_random_uuid(),
+-- 
+2.43.0
+
