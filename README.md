@@ -18,6 +18,9 @@ npm run dev
 ```
 
 Vul de Supabase keys in `.env.local` in. Het project-ID uit de briefing is al verwerkt in de voorbeeld-URL.
+Zonder geldige Supabase-configuratie opent de app een demo/statusmodus op `/demo`.
+Die modus is alleen bedoeld om de frontend en propositie te bekijken; login, opslag,
+cohortdata en dashboards vragen altijd Supabase.
 
 ## Database
 
@@ -29,6 +32,18 @@ supabase/migrations/20260604210900_init_moreel_vakmanschap.sql
 
 Deze migratie maakt alle tabellen, RLS policies en aggregate views aan. De tabel `groepsruimte`
 bevat bewust geen `gebruiker_id`, zodat posts ook voor begeleiders anoniem blijven.
+
+### Gedeeld Supabase-project
+
+Dit Supabase-project kan ook **Moral Maps** dragen. De migratie
+`supabase/migrations/20260625065300_add_moral_maps_results.sql` voegt de anonieme tabel
+`moralmaps_results` toe met RLS voor insert/select via de anon key. Zet in de Vercel-projecten van
+Moral Maps dezelfde Supabase waarden als hier:
+
+- `VITE_SUPABASE_URL` = `NEXT_PUBLIC_SUPABASE_URL`
+- `VITE_SUPABASE_ANON_KEY` = `NEXT_PUBLIC_SUPABASE_ANON_KEY`
+
+Daarmee is er geen apart Supabase-project voor Moral Maps nodig.
 
 ## Deployment
 

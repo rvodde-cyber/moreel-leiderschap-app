@@ -1,3 +1,5 @@
+import Link from "next/link";
+import { buttonVariants } from "@/components/button";
 import { Card, CardHeader } from "@/components/card";
 import { LoginForm } from "@/app/(auth)/login/login-form";
 import { getSupabaseConfig } from "@/lib/supabase/config";
@@ -14,7 +16,9 @@ export default function LoginPage({
 }) {
   const profielMelding = searchParams?.melding === "profiel";
   const linkMelding = searchParams?.melding === "link";
+  const configuratieMelding = searchParams?.melding === "configuratie";
   const supabaseConfig = getSupabaseConfig();
+  const supabaseOntbreekt = !supabaseConfig;
 
   return (
     <main className="flex min-h-screen items-center justify-center px-5 py-12">
@@ -29,6 +33,21 @@ export default function LoginPage({
             Je account is bekend, maar er is nog geen profiel gekoppeld. Vraag je begeleider om
             je aan een cohort toe te voegen.
           </p>
+        ) : null}
+        {configuratieMelding || supabaseOntbreekt ? (
+          <div className="mb-5 border border-[#C45E3E]/30 bg-[#C45E3E]/5 p-4 text-sm text-[#8a3e29]">
+            <p className="font-semibold">Supabase is nog niet verbonden.</p>
+            <p className="mt-1">
+              Inloggen is pas beschikbaar nadat de Supabase URL en anon key zijn ingesteld. De
+              app blijft wel veilig te bekijken via de demo/statusmodus.
+            </p>
+            <Link
+              href="/demo"
+              className={buttonVariants({ variant: "secondary", className: "mt-4 bg-white" })}
+            >
+              Naar demo/status
+            </Link>
+          </div>
         ) : null}
         {linkMelding ? (
           <p className="mb-5 border border-[#C45E3E]/30 bg-[#C45E3E]/5 p-4 text-sm text-[#8a3e29]">
