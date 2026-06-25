@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { getSupabaseConfig, getSupabaseConfigDiagnostics } from "@/lib/supabase/config";
 
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
@@ -7,21 +8,23 @@ const noStoreHeaders = {
   "Cache-Control": "no-store, max-age=0"
 };
 
-const envNames = {
-  url: ["NEXT", "PUBLIC", "SUPABASE", "URL"].join("_"),
-  anonKey: ["NEXT", "PUBLIC", "SUPABASE", "ANON", "KEY"].join("_")
-};
-
 export function GET() {
-  const env = process.env;
+  const supabaseConfig = getSupabaseConfig();
 
-  return NextResponse.json(
-    {
-      url: env[envNames.url],
-      anonKey: env[envNames.anonKey]
-    },
-    {
-      headers: noStoreHeaders
-    }
-  );
+  if (!supabaseConfig) {
+    return NextResponse.json(
+      {
+        error: "Supabase runtime configuration is missing or invalid.",
+        diagnostics: getSupabaseConfigDiagnostics()
+      },
+      {
+        status: 503,
+        headers: noStoreHeaders
+      }
+    );
+  }
+
+  return NextResponse.json(supabaseConfig, {
+    headers: noStoreHeaders
+  });
 }

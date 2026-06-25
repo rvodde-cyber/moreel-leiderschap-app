@@ -18,6 +18,9 @@ npm run dev
 ```
 
 Vul de Supabase keys in `.env.local` in. Het project-ID uit de briefing is al verwerkt in de voorbeeld-URL.
+Zonder geldige Supabase-configuratie opent de app een demo/statusmodus op `/demo`.
+Die modus is alleen bedoeld om de frontend en propositie te bekijken; login, opslag,
+cohortdata en dashboards vragen altijd Supabase.
 
 ## Database
 

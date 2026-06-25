@@ -142,6 +142,10 @@ async function bootstrapWithServiceRole({
 async function bootstrapFirstBegeleider(formData: FormData) {
   "use server";
 
+  if (!getSupabaseConfig()) {
+    redirect(setupErrorUrl("Supabase is nog niet verbonden."));
+  }
+
   const supabase = createClient();
   const cohortNaam = stringValue(formData, "cohort_naam") || "Eerste cohort";
   const begeleiderNaam = stringValue(formData, "begeleider_naam") || null;
@@ -174,6 +178,31 @@ export default async function SetupPage({
 }: {
   searchParams?: { melding?: string };
 }) {
+  if (!getSupabaseConfig()) {
+    return (
+      <main className="flex min-h-screen items-center justify-center px-5 py-12">
+        <Card className="w-full max-w-xl">
+          <CardHeader
+            eyebrow="Eerste setup"
+            title="Supabase nog niet verbonden"
+            description="De eerste begeleider en het eerste cohort kunnen pas worden aangemaakt nadat Supabase is gekoppeld. Vul de Supabase environment variables in en open daarna opnieuw /setup."
+          />
+          <div className="flex flex-wrap gap-3">
+            <Link href="/demo" className={buttonVariants({ variant: "primary" })}>
+              Naar demo/status
+            </Link>
+            <Link
+              href="/login?melding=configuratie"
+              className={buttonVariants({ variant: "secondary" })}
+            >
+              Loginstatus bekijken
+            </Link>
+          </div>
+        </Card>
+      </main>
+    );
+  }
+
   const supabase = createClient();
   const {
     data: { user }
